@@ -50,13 +50,18 @@ class LinearRegression:
                     row.append(np.power(y, j))
             phi.append(row)
             row = []
+        
         phi = np.array(phi)
         phi = np.hstack((ones_arr, phi))
         w = np.dot(phi.T, phi)
+        lambda_term = self.lambda_ * np.eye((w.shape[0]))
+        w = lambda_term + w
         w = np.linalg.pinv(w)
         w = np.dot(w, phi.T)
         w = np.dot(w, self.training_labels)
         self.w = w
+        for i, x in enumerate(w):
+            print('w%d=%.4f' % (i, x))
     def predict(self, x):
         phi = []
         for y in x:
@@ -67,10 +72,14 @@ class LinearRegression:
         return res
     def run_predictions(self):
         id = 1
+        sum_ = 0
         for i, x in enumerate(self.test_data):
             prediction = self.predict(x)
+            #print(np.asscalar(x), np.asscalar(prediction))
             print('ID=%5d, output=%14.4f, target value = %10.4f, squared error = %.4f' % (id, prediction, self.test_labels[i], (prediction-self.test_labels[i]) ** 2))
+            sum_ += (prediction-self.test_labels[i]) ** 2
             id += 1
+        print('Sum of errors:', sum_ / self.test_labels.shape[0])
             
 def main():
     np.set_printoptions(threshold=sys.maxsize)
